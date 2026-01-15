@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Game</title>
+<meta name="theme-color" content="#171e26">
+<style type="text/css">
+*{margin:0;padding:0;}
+canvas{border:1px solid;margin:0;cursor:none;}
+div{display:flex;justify-content:center;}
+button {height:40px;width:60px;}
+</style>
+</head>
+<body>
+<canvas id="myCanvas" height="400" width="300" ></canvas>
+
+<script type="text/javascript">
+"use strict";
+var canvas = document.getElementById("myCanvas");
+var c = canvas.getContext("2d");
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+ //function to make box //
+
+function randInt(min, max){
+return Math.floor(Math.random() * (max - min - 1) + min + 1);
+}
+
+function Star(x ,y ,radius ,color){
+this.x = x;
+this.y = y;
+this.velocity={
+			x: randInt(-5,5) * 1.5,
+			y: 4
+			}
+this.radius = radius;
+this.color = color;
+this.gravity = 2;
+this.friction = 0.65;
+Star.prototype.draw = function(){
+			c.save();
+			c.beginPath();
+			c.arc(this.x ,this.y ,this.radius ,0 ,Math.PI * 2 ,true);
+			c.fillStyle = "white";
+			c.shadowColor = "E3EAEF";
+			c.shadowBlur = 20;
+			c.fill();
+			c.restore();
+			}
+Star.prototype.shatter = function(){
+			this.radius -= 4;
+			for(var m=0;m <8;m++){
+			miniStars.push(new MiniStar(this.x, this.y, 2));
+			}
+			
+			}
+
+Star.prototype.update = function(){
+			if(this.y >= canvas.height - this.radius - this.velocity.y - groundHeight){
+			this.velocity.y = -this.velocity.y * this.friction;
+			this.shatter();
+			}else{
+			this.velocity.y += this.gravity;
+			}
+			
+			if(this.x >= canvas.width - this.radius - this.velocity.x || this.x <= 0 + this.radius + this.velocity.x){
+			this.velocity.x = -this.velocity.x;
+			this.shatter();
+			}
+			this.y += this.velocity.y;
+			this.x += this.velocity.x;
+			this.draw();
+			}
+}
+ 
+ //Mini star
+ 
+ function MiniStar(x ,y ,radius ,color){
+ Star.call(this, x, y, radius, color);
+ this.velocity={
+ x: randInt(-10,10),
+ y: randInt(-30,30)
+ }
+ this.gravity = 1;
+ this.friction = 0.8;
+ this.ttl = 100;
+ this.opacity = 1;
+ 
+ MiniStar.prototype.draw = function(){
+ c.save();
+ c.beginPath();
+ c.arc(this.x ,this.y ,this.radius ,0 ,Math.PI * 2 ,true);
+ c.fillStyle = `rgba(227,234,239,${this.opacity})`;
+ c.shadowColor = "E3EAEF";
+ c.shadowBlur = 20;
+ c.fill();
+ c.restore();
+ }
+ MiniStar.prototype.update = function(){
+ if(this.y >= canvas.height - this.radius - this.velocity.y - groundHeight){
+ this.velocity.y = -this.velocity.y * this.friction;
+ }else{
+ this.velocity.y += this.gravity;
+ }
+ this.y += this.velocity.y;
+ this.x += this.velocity.x;
+ this.ttl -= 1;
+ this.opacity -= 1/this.ttl;
+ this.draw();
+ }
+ }
+ const gradient = c.createLinearGradient(0, 0, 0, canvas.height);
+ gradient.addColorStop(0,"#171e26");
+ gradient.addColorStop(1,"#3f586b");
+ //ends ministar
+ //mountain range
+ function mountainRange(amount, height, color){
+ 	for(let i=0;i <amount;i++){
+ 	const width = canvas.width/amount;
+ 		c.beginPath();
+ 		c.moveTo(i * width,canvas.height);
+ 		c.lineTo(i * width + width + 325,canvas.height);
+ 		c.lineTo(i * width + width /2,canvas.height - height);
+ 		c.lineTo(i * width - 325,canvas.height);
+ 		c.fillStyle = color;
+ 		c.fill();
+ 		c.closePath();
+ 	}
+ }
+ //mountain ends
+ 
+ var starArray = [];
+ var miniStars = [];
+ var backgroundStars = [];
+ var ticker = 0;
+ var randSpawn = 100;
+ const groundHeight = 200;
+ 
+ //background stars
+ for(let i=0;i <200;i++){
+ const x = randInt(0,canvas.width);
+ const y = randInt(0,canvas.height - 250);
+ const radius = Math.random() * 3;
+ backgroundStars.push(new Star(x,y,radius));
+ }
+ 
+ 
+ function animate(){
+ c.fillStyle = gradient;
+ c.fillRect(0,0,canvas.width,canvas.height);
+ 
+ requestAnimationFrame(animate);
+ 
+ 	backgroundStars.forEach(bg => {
+ 	bg.draw();
+ 	});
+ 	
+ 	
+ 	
+ 	mountainRange(1, canvas.height - 350, "#384551");
+ 	mountainRange(2, canvas.height - 500, "#283843");
+ 	mountainRange(3, canvas.height - 650, "#26333e");
+ 	c.fillStyle = "#182028";
+ 	c.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
+ 	starArray.forEach((starsArr,index) => {
+ 	starsArr.update();	
+ 	if(starsArr.radius==0){
+ 	starArray.splice(index,1);
+ 	}
+ 	});
+ 
+ miniStars.forEach((sta, index) =>{
+ sta.update();
+ if(sta.ttl==0){
+ miniStars.splice(index,1);
+ }
+ });
+ 
+ if(ticker % randSpawn == 0){
+ const x = randInt(30,canvas.width - 30);
+ starArray.push(new Star(x, -100, 16, "white"));
+  randSpawn = randInt(75,100);
+ }
+ 
+ 
+ ticker ++;
+ }
+ animate();
+  
+  /*
+  setTimeout(function(){
+  var dataURI = canvas.toDataURL("image/png",1);
+  var a = document.createElement("a");
+  a.innerHTML = "download";
+  a.download = "star.png";
+  document.body.appendChild(a);
+  a.href = dataURI;
+  a.click();
+  },5000);
+  */
+ </script>
+</body>
+</html>

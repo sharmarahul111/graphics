@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Canvas Video</title>
+<meta charset="UTF-8" />
+<meta name="theme-color" content="black" >
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<!--script src="../lib/console.min.js"></script-->
+<script>eruda.init({tools:["console","elements","network","resources","info"]});eruda.get().config.set("displaySize",75);</script>
+<style type="text/css">
+*{margin:0;padding:0;box-sizing:border-box;}
+canvas {border:1px solid;}
+</style>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+<script type="text/javascript">
+var video = document.querySelector("video");
+var canvas = document.getElementById("myCanvas");
+var c = canvas.getContext("2d");
+canvas.width = innerWidth
+canvas.height = innerHeight - 4
+var x = 140;
+var y = 40;
+var dx = 8;
+var dy = 8;
+var radius = 24;
+var color = 0;
+ 
+ function animate(){
+ 
+ requestAnimationFrame(animate);
+ c.fillStyle = 'rgba(0,0,0,0.3)';
+ c.fillRect(0 ,0 ,innerWidth ,innerHeight );
+ 
+ c.beginPath();
+ c.strokeStyle = "aqua";
+ c.arc(x , y, radius ,0 ,Math.PI * 2 , false);
+ c.fillStyle = 'hsl('+color+',60%,60%)';
+ c.fill();
+ 
+ if(x > canvas.width - radius){
+ dx = -1 * dx;
+ }else if(x <radius){
+ dx = Math.floor(Math.random()* 10);
+ }
+ 
+ if(y > canvas.height - radius){
+ dy = -1 * dy;
+ }else if(y < radius){
+ dy = Math.floor(Math.random()* 10);
+ }
+ 
+ x += dx;
+ y += dy;
+ 	if(color == 360){
+		color = 0
+	}else{
+	 	color += 2;
+ }
+ 
+ }
+ animate();
+</script>
+</body>
+</html>
