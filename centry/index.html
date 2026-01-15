@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Central Player Game</title>
+<meta name="theme-color" content="#000">
+<link rel="manifest" href="manifest.json" >
+<link rel="shortcut icon" href="img/logo.png">
+<link rel="icon" href="img/logo.png">
+<link rel="apple-touch-icon" href="img/logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+<style type="text/css">
+body {height:100vh;}
+*{margin:0;padding:0;overflow:hidden !important;}
+span{position:fixed;top:1%;left:2%;color:white;font-family:monospace;font-weight:bold;}
+section{display:none;justify-content:center;align-items:center;position:fixed;top:0;left:0;width:100vw;height:85vh;}
+section div{font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;width:220px;height:150px;background:white;text-align:center;}
+section button{padding:2px 5px;border-radius:7px;width:100px;height:35px;background:#5599ff;border:none;outline:none;}
+section button:active{background:#4477dd;}
+</style>
+</head>
+<body>
+<span id="score">0</span>
+<section><div><h4></h4><br><button onclick="init()">Play Again</button></div></section>
+<canvas></canvas>
+<script type="text/javascript">
+const canvas = document.querySelector("canvas");
+var center = {x:canvas.width/2,y:canvas.height/2};
+const c = canvas.getContext("2d");
+
+function gameOver(){
+	document.querySelector("section").style.display = "flex";
+	document.querySelector("section h4").innerHTML = "Your score is "+score.innerHTML;
+}
+class Player{
+	constructor(x,y,radius,color){
+		this.x = x;
+		this.y = y;
+		this.color = color;
+		this.radius = radius;
+	}
+	draw(){
+		c.beginPath();
+		c.save();
+		c.arc(this.x,this.y,this.radius,0,Math.PI*2,true);
+		c.fillStyle = this.color;
+		c.shadowColor = "rgba(255,255,255,.5)";
+		c.shadowBlur = 8;
+		c.fill();
+		c.restore();
+	}
+
+}
+const player = new Player(center.x,center.y,15,'white');
+
+class Bullet{
+	constructor(x,y,radius,color,velocity){
+		this.x = x;
+		this.y = y;
+		this.color = color;
+		this.radius = radius;
+		this.velocity = velocity;
+	}
+	draw(){
+		c.beginPath();
+		c.arc(this.x,this.y,this.radius,0,Math.PI*2,true);
+		c.fillStyle = this.color;
+		c.fill();
+	}
+	update(){
+	this.draw();
+	this.x += this.velocity.x;
+	this.y += this.velocity.y;
+	
+	}
+}
+function init(){
+	var bullets = [];
+	var enemies = [];
+	var frameId;
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+	//document.body.style.width = innerWidth+"px";
+	//document.body.style.height = innerHeight+"px";
+	const score = document.querySelector("#score");
+	document.querySelector("section").style.display = "none";
+	score.innerHTML = 0;
+
+function createEnemy(){
+	setInterval(()=>{
+		let radius = Math.random()*(30 - 5) + 5;
+		let x,y;
+		if(Math.random() < 0.5){
+			x = (Math.random() < 0.5)?0-radius:canvas.width+radius;
+			y = Math.random()*canvas.height;
+		}else{
+			y = (Math.random() < 0.5)?0-radius:canvas.height+radius;
+			x = Math.random()*canvas.width;
+		}
+		let angle = Math.atan2(canvas.height/2-y ,canvas.width/2 - x);
+		enemies.push(new Bullet(x,y,radius,`hsl(${Math.random()*255},50%,50%)`,{
+		x:Math.cos(angle),
+		y:Math.sin(angle)
+		}));
+	},700);
+}
+addEventListener("mousedown",(e) =>{
+	let angle = Math.atan2(e.clientY - canvas.height/2 ,e.clientX - canvas.width/2);
+	bullets.push(new Bullet(center.x,center.y,5,'white',{
+		x:Math.cos(angle)*4,
+		y:Math.sin(angle)*4
+	}));
+});
+addEventListener("touchstart",(e) =>{
+	let angle = Math.atan2(e.touches[0].clientY - canvas.height/2 ,e.touches[0].clientX - canvas.width/2);
+	bullets.push(new Bullet(center.x,center.y,5,'white',{
+		x:Math.cos(angle)*4,
+		y:Math.sin(angle)*4
+	}));
+});
+
+function animate(){
+	frameId = requestAnimationFrame(animate);
+	c.fillStyle = 'rgba(0,0,0,.03)';
+	c.fillRect(0,0,canvas.width,canvas.height);
+	player.draw();
+	enemies.forEach((enemy,index) =>{
+		enemy.update();
+		if(enemy.radius >= 3){
+		enemy.radius -= 0.02;
+		}
+		
+		if(Math.hypot(enemy.x - player.x,enemy.y - player.y) < player.radius + enemy.radius -1){
+		cancelAnimationFrame(frameId);
+		gameOver();
+		}
+		
+		bullets.forEach((bullet,bIndex)=>{
+		if(Math.hypot(enemy.x - bullet.x,enemy.y - bullet.y) < bullet.radius + enemy.radius -2){
+		/*setTimeout(()=>{*/bullets.splice(bIndex,1);enemies.splice(index,1);//},0);
+			score.innerHTML = Number(score.innerHTML)+1;
+		}
+		});
+	});
+	
+	bullets.forEach((bullet,index)=>{
+		bullet.update();
+		if(bullet.x + bullet.radius < 0 || bullet.x - bullet.radius > canvas.width || bullet.y + bullet.radius < 0 || bullet.y - bullet.radius > canvas.height){
+			setTimeout(function(){
+				bullets.splice(index,1);
+			},0);
+		}
+		
+	});
+}
+	animate();
+	createEnemy();
+}
+function start(){
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+	center.y = player.y = canvas.height/2
+	center.x = player.x = canvas.width/2
+	center = {x:canvas.width/2,y:canvas.height/2};
+	document.body.width = innerWidth//+"px";
+	document.body.height = innerHeight//+"px";
+	init()
+}
+onload = start;
+addEventListener('resize', function(){
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+	document.body.width = innerWidth
+	document.body.height = innerHeight
+	center.y = player.y = canvas.height/2
+	center.x = player.x = canvas.width/2
+	
+})
+
+</script>
+
+<script type="text/javascript">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+    .then((registration) => {
+      console.log('Service Worker registration completed with scope: ',
+        registration.scope)
+    }, (err) => {
+      console.log('Service Worker registration failed', err)
+    })
+  })
+} else {
+  console.log('Service Workers not supported')
+}
+
+</script>
+</body>
+</html>
