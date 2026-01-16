@@ -1,0 +1,88 @@
+var canvas = document.getElementById("myCanvas");
+    var c = canvas.getContext("2d");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+
+
+    function Circle(x, y, dx, dy, radius, color) {
+      this.x = x;
+      this.y = y;
+      this.dx = dx;
+      this.dy = dy;
+      this.radius = radius;
+      this.color = color;
+      this.draw = function () {
+        c.beginPath();
+        c.arc(x, y, radius, 0, Math.PI * 2, true);
+        c.fillStyle = color;
+        c.fill();
+      }
+      this.update = function () {
+        if (x > canvas.width - radius) {
+          dx = -1 * dx;
+        } else if (x < radius) {
+          dx = Math.floor(Math.random() * 10);
+        }
+
+        if (y > canvas.height - radius) {
+          dy = -1 * dy;
+        } else if (y < radius) {
+          dy = Math.floor(Math.random() * 10);
+        }
+        x += dx;
+        y += dy;
+        this.draw();
+      }
+    }
+    var circleArray = [];
+    for (var i = 0; i < 50; i++) {
+
+      var x = Math.floor(Math.random() * 280);
+      var y = Math.floor(Math.random() * 280);
+      var dx = Math.floor(Math.random() * 10);
+      var dy = Math.floor(Math.random() * 10);
+      var radi = Math.floor(Math.random() * 20);
+      var radius = radi + 20;
+      var colors = ["red", "green", "blue", "aqua", "pink", "navy", "purple", "yellow", "teal"];
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      circleArray.push(new Circle(x, y, dx, dy, radius, color));
+
+    }
+
+    function animate() {
+
+      requestAnimationFrame(animate);
+      c.clearRect(0, 0, innerWidth, innerHeight);
+      for (var j = 0; j < circleArray.length; j++) {
+        circleArray[j].update();
+      }
+
+    }
+    animate();
+
+    /*c.beginPath();
+     c.arc(x ,y ,radius ,0 ,Math.PI * 2 ,true);
+     c.strokeStyle = "green";
+     c.stroke();
+    
+    
+     if(x > 280){
+      dx = -1 * dx;
+     }else if(x <radius){
+      dx = Math.floor(Math.random()* 10);
+     }
+    
+     if(y > 280){
+     dy = -1 * dy;
+     }else if(y <radius){
+     dy = Math.floor(Math.random()* 10);
+     }
+    
+     x += dx;
+     y += dy;
+     }
+     animate();
+     */
+
+
+
