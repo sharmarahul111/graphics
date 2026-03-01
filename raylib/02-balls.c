@@ -66,15 +66,15 @@ int main() {
 			balls[i].pos.y += balls[i].dir.y * speed * dt;
 		}
 		// smooth camera movement
-		camera_pos.x += (balls[target].pos.x-camera_pos.x)/20;
-		camera_pos.y += (balls[target].pos.y-camera_pos.y)/20;
+		camera_pos.x += (balls[target].pos.x-camera_pos.x)/(30);
+		camera_pos.y += (balls[target].pos.y-camera_pos.y)/(30);
 		camera.target = camera_pos;
 
 		// zoom logic
-		if (IsKeyDown(KEY_Q) && camera.zoom >= .1)
-			camera.zoom -= 0.008;
-		if (IsKeyDown(KEY_W) && camera.zoom <= 10)
-			camera.zoom += 0.008;
+		if (IsKeyDown(KEY_Q) && camera.zoom >= .2)
+			camera.zoom -= 0.01;
+		if (IsKeyDown(KEY_W) && camera.zoom <= 20)
+			camera.zoom += 0.01;
 		if (IsKeyPressed(KEY_RIGHT))
 			target = (target + 1) % ball_count;
 		// if(IsKeyPressed(KEY_LEFT)) target = (target-1)%ball_count;
