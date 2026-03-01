@@ -107,4 +107,4 @@ int main() {
 }
 
 int randRange(int a, int b) { return rand() % (b - a) + a; }
-Color choice(Color c[], int size) { return c[rand() % 10]; }
+Color choice(Color c[], int size) { return c[rand() % size]; }
