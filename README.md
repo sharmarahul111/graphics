@@ -1,5 +1,5 @@
-# canvas
-Various small animations and simulations made in javascript canvas
+# Graphics
+Playing with graphics and makig animations and simulations
 
 ## List
 * [Matrix effect](https://sharmarahul111.github.io/canvas/matrix)<br>
