@@ -37,6 +37,7 @@ int main() {
 		};
 	}
 	int target = 0;
+	Vector2 camera_pos = balls[target].pos;
 	Camera2D camera = {(Vector2){width / 2, height / 2}, balls[target].pos, 0, 1};
 	InitWindow(width, height, "Bouncing Ball");
 	while (!WindowShouldClose()) {
@@ -64,7 +65,10 @@ int main() {
 			balls[i].pos.x += balls[i].dir.x * speed * dt;
 			balls[i].pos.y += balls[i].dir.y * speed * dt;
 		}
-		camera.target = balls[target].pos;
+		// smooth camera movement
+		camera_pos.x += (balls[target].pos.x-camera_pos.x)/20;
+		camera_pos.y += (balls[target].pos.y-camera_pos.y)/20;
+		camera.target = camera_pos;
 
 		// zoom logic
 		if (IsKeyDown(KEY_Q) && camera.zoom >= .1)
